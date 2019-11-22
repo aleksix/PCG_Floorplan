@@ -66,10 +66,8 @@ tile_set = SubResource( 1 )
 cell_size = Vector2( 32, 32 )
 format = 1
 script = ExtResource( 6 )
-width = 100
-height = 100
-threshold = 2500
-min_area = 500
+width = 50
+height = 50
 
 [node name="camera" type="Camera2D" parent="TileMap"]
 current = true
