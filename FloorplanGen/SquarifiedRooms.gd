@@ -1,6 +1,14 @@
 extends TileMap
 
 # Internal classes
+class Pair:
+	var first
+	var second
+	
+	func _init(first = null, second = null):
+		self.first = first
+		self.second = second
+	
 class Room:
 	var name = ""
 	var room_rect = null
@@ -395,18 +403,27 @@ func _ready():
 							if adjacent == TILE_BY_WALL or adjacent == TILE_CORNER:
 								adjacent_by_wall += 1
 							
-				# Small trick here - we place the special tiles on the map itself to simplify future checks
-				# REMEMBER TO REPLACE THE SPECIAL TILES LATER!
+				var room_name = null
+				var tile_point = Vector2(x, y)
+				for room in all_rooms:
+					if room.room_rect.has_point(tile_point):
+						room_name = room.name
+						break
+						
+				var tile = Pair.new(room_name, tile_point)
+							
 				if adjacent_wall + adjacent_door >= 2:
-					corners.append(Vector2(x, y))
+					corners.append(tile)
 				elif adjacent_wall == 1 and adjacent_by_wall == 0:
 					if randi() % 100 > 50:
-						by_wall_tiles.append(Vector2(x, y))
+						by_wall_tiles.append(tile)
+						# Small trick here - we place the special tiles on the map itself to simplify future checks
+						# REMEMBER TO REPLACE THE SPECIAL TILES LATER!
 						set_cell(x, y, TILE_BY_WALL)
 				else:
 					if adjacent_door == 0 and adjacent_by_wall == 0:
 						if x % 4 == 0 and y % 4 == 0:
-							open_area_tiles.append(Vector2(x, y))
+							open_area_tiles.append(tile)
 			else:
 				solid_tiles.append(Vector2(x, y))
 				
@@ -416,16 +433,16 @@ func _ready():
 			open_area_tiles.remove(c)
 
 	for c in range(len(by_wall_tiles) - 1, -1, -1):
-		set_cellv(by_wall_tiles[c], TILE_FLOOR)
+		set_cellv(by_wall_tiles[c].second, TILE_FLOOR)
 		if c % 2 == 0:
 			by_wall_tiles.remove(c)
 			
 	# DEBUG: Clutter zone drawing
-	for cell in open_area_tiles:
-		set_cellv(cell, TILE_OPEN)
-	for cell in by_wall_tiles:
-		set_cellv(cell, TILE_BY_WALL)
-	for cell in corners:
-		set_cellv(cell, TILE_CORNER)
-	for cell in solid_tiles:
-		set_cellv(cell, TILE_DOOR)
+	#for cell in open_area_tiles:
+	#	set_cellv(cell.second, TILE_OPEN)
+	#for cell in by_wall_tiles:
+	#	set_cellv(cell.second, TILE_BY_WALL)
+	#for cell in corners:
+	#	set_cellv(cell.second, TILE_CORNER)
+	#for cell in solid_tiles:
+	#	set_cellv(cell, TILE_DOOR)
