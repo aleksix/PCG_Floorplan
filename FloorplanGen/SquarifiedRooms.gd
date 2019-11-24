@@ -60,8 +60,10 @@ export(String) var main_room = "living"
 # Publically-visible variables
 # Tiles for clutter in tile space
 var open_area_tiles = []
-var wall_tiles = []
+var by_wall_tiles = []
 var corners = []
+
+var solid_tiles = []
 
 # NOTE: Can't use custom classes in export, hence the janky PseudoDict
 # Also, custom dictionaries and classes are harder to sort and such, this is simpler
@@ -399,27 +401,31 @@ func _ready():
 					corners.append(Vector2(x, y))
 				elif adjacent_wall == 1 and adjacent_by_wall == 0:
 					if randi() % 100 > 50:
-						wall_tiles.append(Vector2(x, y))
+						by_wall_tiles.append(Vector2(x, y))
 						set_cell(x, y, TILE_BY_WALL)
 				else:
 					if adjacent_door == 0 and adjacent_by_wall == 0:
 						if x % 4 == 0 and y % 4 == 0:
 							open_area_tiles.append(Vector2(x, y))
-	
+			else:
+				solid_tiles.append(Vector2(x, y))
+				
 	# Cut down the amount of cells
 	for c in range(len(open_area_tiles) - 1, -1, -1):
 		if c % 2 == 0:
 			open_area_tiles.remove(c)
 
-	for c in range(len(wall_tiles) - 1, -1, -1):
-		set_cellv(wall_tiles[c], TILE_FLOOR)
+	for c in range(len(by_wall_tiles) - 1, -1, -1):
+		set_cellv(by_wall_tiles[c], TILE_FLOOR)
 		if c % 2 == 0:
-			wall_tiles.remove(c)
+			by_wall_tiles.remove(c)
 			
 	# DEBUG: Clutter zone drawing
-	#for cell in open_area_tiles:
-	#	set_cellv(cell, TILE_FLOOR)
-	#for cell in wall_tiles:
-	#	set_cellv(cell, TILE_FLOOR)
-	#for cell in corners:
-	#	set_cellv(cell, TILE_FLOOR)
+	for cell in open_area_tiles:
+		set_cellv(cell, TILE_OPEN)
+	for cell in by_wall_tiles:
+		set_cellv(cell, TILE_BY_WALL)
+	for cell in corners:
+		set_cellv(cell, TILE_CORNER)
+	for cell in solid_tiles:
+		set_cellv(cell, TILE_DOOR)
